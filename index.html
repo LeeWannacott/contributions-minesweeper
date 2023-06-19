@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>contributions graph</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <script defer>
+    async function getContributions(token, username) {
+      const headers = {
+        Authorization: `bearer ${token}`,
+      };
+      const body = {
+        query: `query {
+                user(login: "${username}") {
+                  name
+                  contributionsCollection {
+                    contributionCalendar {
+                      colors
+                      totalContributions
+                      weeks {
+                        contributionDays {
+                          color
+                          contributionCount
+                          date
+                          weekday
+                        }
+                        firstDay
+                      }
+                    }
+                  }
+                }
+              }`,
+      };
+      const response = await fetch("https://api.github.com/graphql", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: headers,
+      });
+      const data = await response.json();
+      return data;
+    }
+    async function reeeeee() {
+      const data = await getContributions(
+        `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`,
+        "leewannacott"
+      );
+      console.log(data);
+      console.log(data.data.user.contributionsCollection);
+      console.log(
+        data.data.user.contributionsCollection.contributionCalendar.weeks
+      );
+      contributionGraph = document.querySelector(".contributions-graph");
+      for (const week of data.data.user.contributionsCollection
+        .contributionCalendar.weeks) {
+        console.log(week);
+        for (const [index, day] of week.contributionDays.entries()) {
+          let div = document.createElement("div");
+          div.setAttribute("class", `contribution ${index}`);
+          div.style.backgroundColor = day.color
+          div.innerText = day.contributionCount;
+          contributionGraph.appendChild(div);
+        }
+      }
+    }
+    reeeeee();
+  </script>
+  <body>
+    <div class="contributions-graph"></div>
+  </body>
+</html>
