@@ -41,32 +41,48 @@
       const data = await response.json();
       return data;
     }
-    async function reeeeee() {
+    let score = 0;
+    function checkIfContribution(e) {
+      console.log(e.target);
+      e.target.innerText = e.target.contributionCount;
+      e.target.style.backgroundImage = "";
+      e.target.style.backgroundColor = e.target.dayColor;
+      if (e.target.contributionCount > 0 && e.target.contributionCount < 10) {
+        score += e.target.contributionCount;
+        console.log(score);
+        let scoreBoard = document.querySelector("#score");
+        scoreBoard.innerText = "Score: " + score.toString();
+      }
+      if (e.target.contributionCount >= 10) {
+        e.target.innerText = "";
+        e.target.style.backgroundColor = "red";
+        e.target.style.backgroundImage = "url('bomb.png')";
+        score = 0;
+      }
+    }
+    async function makeContributionGraph() {
       const data = await getContributions(
         `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`,
         "leewannacott"
       );
-      console.log(data);
-      console.log(data.data.user.contributionsCollection);
-      console.log(
-        data.data.user.contributionsCollection.contributionCalendar.weeks
-      );
       contributionGraph = document.querySelector(".contributions-graph");
       for (const week of data.data.user.contributionsCollection
         .contributionCalendar.weeks) {
-        console.log(week);
         for (const [index, day] of week.contributionDays.entries()) {
-          let div = document.createElement("div");
-          div.setAttribute("class", `contribution ${index}`);
-          div.style.backgroundColor = day.color
-          div.innerText = day.contributionCount;
-          contributionGraph.appendChild(div);
+          let contributionDiv = document.createElement("div");
+          contributionDiv.setAttribute("class", `contribution ${day.date}`);
+          contributionDiv.style.backgroundImage = "url('redFlag.svg')";
+          contributionDiv.dayColor = day.color;
+          contributionDiv.contributionCount = day.contributionCount;
+          contributionDiv.addEventListener("click", checkIfContribution);
+          contributionGraph.appendChild(contributionDiv);
         }
       }
     }
-    reeeeee();
+    makeContributionGraph();
   </script>
   <body>
     <div class="contributions-graph"></div>
+    <div id="score">Score:</div>
   </body>
 </html>
